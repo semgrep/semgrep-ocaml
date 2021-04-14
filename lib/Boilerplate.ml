@@ -86,8 +86,8 @@ let map_anon_choice_priv_c7cc539 (env : env) (x : CST.anon_choice_priv_c7cc539) 
   | `Virt tok -> token env tok (* "virtual" *)
   )
 
-let map_tok_pat_9ed5fa7_rep_pat_2ed1ddf (env : env) (tok : CST.tok_pat_9ed5fa7_rep_pat_2ed1ddf) =
-  token env tok (* tok_pat_9ed5fa7_rep_pat_2ed1ddf *)
+let map_tok_pat_058c54c_rep_pat_525fbb4 (env : env) (tok : CST.tok_pat_058c54c_rep_pat_525fbb4) =
+  token env tok (* tok_pat_058c54c_rep_pat_525fbb4 *)
 
 let map_pat_60fc52b (env : env) (tok : CST.pat_60fc52b) =
   token env tok (* pattern "\\\\[\\\\\"'ntbr ]" *)
@@ -140,8 +140,8 @@ let map_and_operator (env : env) (tok : CST.and_operator) =
 let map_pat_3bf11d1 (env : env) (tok : CST.pat_3bf11d1) =
   token env tok (* pattern \\x[0-9A-Fa-f][0-9A-Fa-f] *)
 
-let map_tok_STARSTAR_rep_pat_2ed1ddf (env : env) (tok : CST.tok_STARSTAR_rep_pat_2ed1ddf) =
-  token env tok (* tok_STARSTAR_rep_pat_2ed1ddf *)
+let map_tok_STARSTAR_rep_pat_525fbb4 (env : env) (tok : CST.tok_STARSTAR_rep_pat_525fbb4) =
+  token env tok (* tok_STARSTAR_rep_pat_525fbb4 *)
 
 let map_null (env : env) (tok : CST.null) =
   token env tok (* null *)
@@ -191,8 +191,8 @@ let map_anon_choice_PLUS_da42005 (env : env) (x : CST.anon_choice_PLUS_da42005) 
 
 let map_mult_operator (env : env) (x : CST.mult_operator) =
   (match x with
-  | `Tok_pat_9ed5fa7_rep_pat_2ed1ddf tok ->
-      token env tok (* tok_pat_9ed5fa7_rep_pat_2ed1ddf *)
+  | `Tok_pat_058c54c_rep_pat_525fbb4 tok ->
+      token env tok (* tok_pat_058c54c_rep_pat_525fbb4 *)
   | `Mod tok -> token env tok (* "mod" *)
   | `Land tok -> token env tok (* "land" *)
   | `Lor tok -> token env tok (* "lor" *)
@@ -213,8 +213,8 @@ let map_escape_sequence (env : env) (x : CST.escape_sequence) =
 
 let map_pow_operator (env : env) (x : CST.pow_operator) =
   (match x with
-  | `Tok_STARSTAR_rep_pat_2ed1ddf tok ->
-      token env tok (* tok_STARSTAR_rep_pat_2ed1ddf *)
+  | `Tok_STARSTAR_rep_pat_525fbb4 tok ->
+      token env tok (* tok_STARSTAR_rep_pat_525fbb4 *)
   | `Lsl tok -> token env tok (* "lsl" *)
   | `Lsr tok -> token env tok (* "lsr" *)
   | `Asr tok -> token env tok (* "asr" *)

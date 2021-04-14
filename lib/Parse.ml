@@ -64,7 +64,7 @@ let children_regexps : (string * Run.exp option) list = [
   "pat_60fc52b", None;
   "imm_tok_HT", None;
   "pat_d43393f", None;
-  "tok_STARSTAR_rep_pat_2ed1ddf", None;
+  "tok_STARSTAR_rep_pat_525fbb4", None;
   "pat_714c625", None;
   "pretty_printing_indication", None;
   "add_operator", None;
@@ -88,7 +88,7 @@ let children_regexps : (string * Run.exp option) list = [
   "imm_tok_LBRACKATAT", None;
   "pat_3d340f6", None;
   "rel_operator", None;
-  "tok_pat_9ed5fa7_rep_pat_2ed1ddf", None;
+  "tok_pat_058c54c_rep_pat_525fbb4", None;
   "unit",
   Some (
     Alt [|
@@ -146,7 +146,7 @@ let children_regexps : (string * Run.exp option) list = [
   "pow_operator",
   Some (
     Alt [|
-      Token (Name "tok_STARSTAR_rep_pat_2ed1ddf");
+      Token (Name "tok_STARSTAR_rep_pat_525fbb4");
       Token (Literal "lsl");
       Token (Literal "lsr");
       Token (Literal "asr");
@@ -165,7 +165,7 @@ let children_regexps : (string * Run.exp option) list = [
   "mult_operator",
   Some (
     Alt [|
-      Token (Name "tok_pat_9ed5fa7_rep_pat_2ed1ddf");
+      Token (Name "tok_pat_058c54c_rep_pat_525fbb4");
       Token (Literal "mod");
       Token (Literal "land");
       Token (Literal "lor");
@@ -3857,7 +3857,7 @@ let trans_pat_d43393f ((kind, body) : mt) : CST.pat_d43393f =
   | Children _ -> assert false
 
 
-let trans_tok_STARSTAR_rep_pat_2ed1ddf ((kind, body) : mt) : CST.tok_STARSTAR_rep_pat_2ed1ddf =
+let trans_tok_STARSTAR_rep_pat_525fbb4 ((kind, body) : mt) : CST.tok_STARSTAR_rep_pat_525fbb4 =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -3959,7 +3959,7 @@ let trans_rel_operator ((kind, body) : mt) : CST.rel_operator =
   | Leaf v -> v
   | Children _ -> assert false
 
-let trans_tok_pat_9ed5fa7_rep_pat_2ed1ddf ((kind, body) : mt) : CST.tok_pat_9ed5fa7_rep_pat_2ed1ddf =
+let trans_tok_pat_058c54c_rep_pat_525fbb4 ((kind, body) : mt) : CST.tok_pat_058c54c_rep_pat_525fbb4 =
   match body with
   | Leaf v -> v
   | Children _ -> assert false
@@ -4115,8 +4115,8 @@ let trans_pow_operator ((kind, body) : mt) : CST.pow_operator =
   | Children v ->
       (match v with
       | Alt (0, v) ->
-          `Tok_STARSTAR_rep_pat_2ed1ddf (
-            trans_tok_STARSTAR_rep_pat_2ed1ddf (Run.matcher_token v)
+          `Tok_STARSTAR_rep_pat_525fbb4 (
+            trans_tok_STARSTAR_rep_pat_525fbb4 (Run.matcher_token v)
           )
       | Alt (1, v) ->
           `Lsl (
@@ -4163,8 +4163,8 @@ let trans_mult_operator ((kind, body) : mt) : CST.mult_operator =
   | Children v ->
       (match v with
       | Alt (0, v) ->
-          `Tok_pat_9ed5fa7_rep_pat_2ed1ddf (
-            trans_tok_pat_9ed5fa7_rep_pat_2ed1ddf (Run.matcher_token v)
+          `Tok_pat_058c54c_rep_pat_525fbb4 (
+            trans_tok_pat_058c54c_rep_pat_525fbb4 (Run.matcher_token v)
           )
       | Alt (1, v) ->
           `Mod (
