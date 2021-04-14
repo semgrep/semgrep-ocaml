@@ -68,7 +68,7 @@ type anon_choice_priv_c7cc539 = [
 ]
 [@@deriving sexp_of]
 
-type tok_pat_058c54c_rep_pat_525fbb4 = Token.t
+type tok_pat_9ed5fa7_rep_pat_2ed1ddf = Token.t
 [@@deriving sexp_of]
 
 type pat_60fc52b = Token.t (* pattern "\\\\[\\\\\"'ntbr ]" *)
@@ -122,7 +122,7 @@ type and_operator = Token.t
 type pat_3bf11d1 = Token.t (* pattern \\x[0-9A-Fa-f][0-9A-Fa-f] *)
 [@@deriving sexp_of]
 
-type tok_STARSTAR_rep_pat_525fbb4 = Token.t
+type tok_STARSTAR_rep_pat_2ed1ddf = Token.t
 [@@deriving sexp_of]
 
 type null = Token.t
@@ -171,8 +171,8 @@ type anon_choice_PLUS_da42005 = [
 [@@deriving sexp_of]
 
 type mult_operator = [
-    `Tok_pat_058c54c_rep_pat_525fbb4 of
-      tok_pat_058c54c_rep_pat_525fbb4 (*tok*)
+    `Tok_pat_9ed5fa7_rep_pat_2ed1ddf of
+      tok_pat_9ed5fa7_rep_pat_2ed1ddf (*tok*)
   | `Mod of Token.t (* "mod" *)
   | `Land of Token.t (* "land" *)
   | `Lor of Token.t (* "lor" *)
@@ -189,7 +189,7 @@ type escape_sequence = [
 [@@deriving sexp_of]
 
 type pow_operator = [
-    `Tok_STARSTAR_rep_pat_525fbb4 of tok_STARSTAR_rep_pat_525fbb4 (*tok*)
+    `Tok_STARSTAR_rep_pat_2ed1ddf of tok_STARSTAR_rep_pat_2ed1ddf (*tok*)
   | `Lsl of Token.t (* "lsl" *)
   | `Lsr of Token.t (* "lsr" *)
   | `Asr of Token.t (* "asr" *)
