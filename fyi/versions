@@ -1,0 +1,52 @@
+File: semgrep-grammars/src/tree-sitter-ocaml/LICENSE
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 2f962cf4eb0bee87bba755347a79ee501cd58313
+  Author: Pieter Goetschalckx <pieter@gtschlckx.be>
+  Date:   Thu Mar 11 02:13:42 2021 +0100
+  
+      Support new features (OCaml 4.12+) (#50)
+      
+      * Allow hash in prefix operators
+      
+      * Let punning
+      
+      * Name existentials in pattern matching
+      
+      * Module type substitutions
+      
+      * Update tests
+      
+      * Rebuild
+---
+File: semgrep-grammars/src/tree-sitter-ocaml/ocaml/grammar.js
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 2f962cf4eb0bee87bba755347a79ee501cd58313
+  Author: Pieter Goetschalckx <pieter@gtschlckx.be>
+  Date:   Thu Mar 11 02:13:42 2021 +0100
+  
+      Support new features (OCaml 4.12+) (#50)
+      
+      * Allow hash in prefix operators
+      
+      * Let punning
+      
+      * Name existentials in pattern matching
+      
+      * Module type substitutions
+      
+      * Update tests
+      
+      * Rebuild
+---
+File: semgrep-grammars/src/semgrep-ocaml/grammar.js
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 9bca49eafc8489bc0d508057079bec9b7d10f65e
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Wed Apr 14 16:44:28 2021 -0700
+  
+      Include new file 'fyi/versions' that tracks git info associated with
+      each file in the "FYI" list.
+---
