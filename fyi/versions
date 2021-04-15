@@ -43,10 +43,9 @@ Last git commit:
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
 Git repo name: ocaml-tree-sitter
 Last git commit:
-  commit 9bca49eafc8489bc0d508057079bec9b7d10f65e
+  commit b1b6d3e7595b5368f61588db168fea32774b3f81
   Author: Martin Jambon <martin@returntocorp.com>
-  Date:   Wed Apr 14 16:44:28 2021 -0700
+  Date:   Wed Apr 14 16:59:53 2021 -0700
   
-      Include new file 'fyi/versions' that tracks git info associated with
-      each file in the "FYI" list.
+      Add release file containing the tree-sitter version
 ---
