@@ -2,11 +2,23 @@ File: semgrep-grammars/src/tree-sitter-ocaml/LICENSE
 Git repo name: tree-sitter-ocaml
 Latest commit in repo: 2f962cf4eb0bee87bba755347a79ee501cd58313
 Last change in file:
-  commit 0cb17f823bd118ca21bc2ebb178ff6082bd32c08
+  commit 2f962cf4eb0bee87bba755347a79ee501cd58313
   Author: Pieter Goetschalckx <pieter@gtschlckx.be>
-  Date:   Mon Sep 14 23:58:47 2020 +0200
+  Date:   Thu Mar 11 02:13:42 2021 +0100
   
-      Add license. Closes #44.
+      Support new features (OCaml 4.12+) (#50)
+      
+      * Allow hash in prefix operators
+      
+      * Let punning
+      
+      * Name existentials in pattern matching
+      
+      * Module type substitutions
+      
+      * Update tests
+      
+      * Rebuild
 ---
 File: semgrep-grammars/src/tree-sitter-ocaml/ocaml/grammar.js
 Git repo name: tree-sitter-ocaml
@@ -31,8 +43,8 @@ Last change in file:
       * Rebuild
 ---
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
-Git repo name: ocaml-tree-sitter
-Latest commit in repo: f0469e1b59ee4df9d8cdded2a7d5cb124f3ea264
+Git repo name: ocaml-tree-sitter-semgrep
+Latest commit in repo: c688b0e428c5630719eabb883b9321013411f079
 Last change in file:
   commit 71d95757a796e641c753de92f1c15f736290323e
   Author: Martin Jambon <martin@returntocorp.com>
