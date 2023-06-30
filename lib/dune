@@ -1,7 +1,6 @@
 (library
   (public_name tree-sitter-lang.ocaml)
   (name tree_sitter_ocaml)
-  (preprocess (pps ppx_sexp_conv))
   (libraries atdgen-runtime tree-sitter.run)
 
   ; A copy of the C headers for the tree-sitter library is found locally.
