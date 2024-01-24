@@ -3468,14 +3468,17 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "compilation_unit",
   Some (
-    Seq [
-      Opt (
-        Token (Name "shebang");
-      );
-      Opt (
-        Token (Name "structure");
-      );
-    ];
+    Alt [|
+      Seq [
+        Opt (
+          Token (Name "shebang");
+        );
+        Opt (
+          Token (Name "structure");
+        );
+      ];
+      Token (Name "signature");
+    |];
   );
 ]
 
@@ -10891,15 +10894,25 @@ let trans_compilation_unit ((kind, body) : mt) : CST.compilation_unit =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1] ->
-          (
-            Run.opt
-              (fun v -> trans_shebang (Run.matcher_token v))
-              v0
-            ,
-            Run.opt
-              (fun v -> trans_structure (Run.matcher_token v))
-              v1
+      | Alt (0, v) ->
+          `Opt_sheb_opt_stru (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  Run.opt
+                    (fun v -> trans_shebang (Run.matcher_token v))
+                    v0
+                  ,
+                  Run.opt
+                    (fun v -> trans_structure (Run.matcher_token v))
+                    v1
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Sign (
+            trans_signature (Run.matcher_token v)
           )
       | _ -> assert false
       )

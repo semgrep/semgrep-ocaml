@@ -1708,7 +1708,10 @@ and variant_declaration = [
   | `Cons_decl_rep_BAR_cons_decl of anon_cons_decl_rep_BAR_cons_decl_fc0ccc5
 ]
 
-type compilation_unit = (shebang (*tok*) option * structure option)
+type compilation_unit = [
+    `Opt_sheb_opt_stru of (shebang (*tok*) option * structure option)
+  | `Sign of signature
+]
 
 type line_number_directive (* inlined *) = Token.t
 

@@ -4062,22 +4062,29 @@ and map_variant_declaration (env : env) (x : CST.variant_declaration) =
     )
   )
 
-let map_compilation_unit (env : env) ((v1, v2) : CST.compilation_unit) =
-  let v1 =
-    (match v1 with
-    | Some tok -> R.Option (Some (
-        (* pattern #!.* *) token env tok
-      ))
-    | None -> R.Option None)
-  in
-  let v2 =
-    (match v2 with
-    | Some x -> R.Option (Some (
-        map_structure env x
-      ))
-    | None -> R.Option None)
-  in
-  R.Tuple [v1; v2]
+let map_compilation_unit (env : env) (x : CST.compilation_unit) =
+  (match x with
+  | `Opt_sheb_opt_stru (v1, v2) -> R.Case ("Opt_sheb_opt_stru",
+      let v1 =
+        (match v1 with
+        | Some tok -> R.Option (Some (
+            (* pattern #!.* *) token env tok
+          ))
+        | None -> R.Option None)
+      in
+      let v2 =
+        (match v2 with
+        | Some x -> R.Option (Some (
+            map_structure env x
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2]
+    )
+  | `Sign x -> R.Case ("Sign",
+      map_signature env x
+    )
+  )
 
 let dump_tree root =
   map_compilation_unit () root

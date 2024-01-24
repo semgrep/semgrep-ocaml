@@ -20,11 +20,25 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 5b1fbeb6b9970f06df4395602fa19a5453f758e5
+Latest commit in repo: dd8c1c12669989ea46cd0de76df63d551b78cd8f
 Last change in file:
-  commit 71d95757a796e641c753de92f1c15f736290323e
-  Author: Martin Jambon <martin@returntocorp.com>
-  Date:   Sun Apr 11 01:31:59 2021 -0700
+  commit dd8c1c12669989ea46cd0de76df63d551b78cd8f
+  Author: pad <pad@r2c.dev>
+  Date:   Wed Jan 24 16:44:34 2024 +0100
   
-      Fix paths for dealing with tree-sitter-ocaml
+      OCaml: allow to parse signatures at the toplevel too
+      
+      This will allow to parse .mli using tree-sitter-ocaml. Right now
+      the .mli generate parse errors with tree-sitter-ocaml, so we default
+      back to menhir to parse those .mli (which has some special
+      code to use different grammar entry points depending whether
+      we parse a .mli or .ml), but menhir does not handle some
+      of the latest features of OCaml, so many .mli in the semgrep
+      codebase actually don't parse (especially the one using
+      capabilities which are object types).
+      
+      test plan:
+      unit test included
+      cd lang
+      ./test-lang ocaml
 ---
