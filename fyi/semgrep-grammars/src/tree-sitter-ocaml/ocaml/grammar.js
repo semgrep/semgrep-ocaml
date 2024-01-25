@@ -39,27 +39,29 @@ module.exports = grammar({
   ],
 
   inline: $ => [
-    $._parameter,
-    $._argument,
-    $._extension,
-    $._item_extension,
-    $._value_pattern,
+    $._module_type_ext,
+    $._module_expression_ext,
+    $._module_expression_ext,
+    $._simple_type_ext,
+    $._simple_expression_ext,
+    $._expression_ext,
+    $._quoted_string,
     $._label_name,
     $._field_name,
     $._class_name,
     $._class_type_name,
     $._method_name,
     $._type_constructor,
+    $._instance_variable_name,
     $._module_name,
     $._module_type_name,
-    $._label
+    $._constructor_name,
   ],
 
   word: $ => $._identifier,
 
   supertypes: $ => [
     $._structure_item,
-    $._signature_item,
     $._parameter,
     $._module_type,
     $._simple_module_expression,
@@ -73,16 +75,22 @@ module.exports = grammar({
     $._polymorphic_type,
     $._simple_type,
     $._tuple_type,
+    $._tag_spec,
     $._type,
     $._simple_expression,
     $._expression,
     $._sequence_expression,
+    $._argument,
     $._simple_pattern,
     $._pattern,
     $._binding_pattern,
+    $._extension,
+    $._item_extension,
     $._constant,
     $._signed_constant,
-    $._infix_operator
+    $._infix_operator,
+    $._value_name,
+    $._value_pattern
   ],
 
   rules: {
@@ -97,9 +105,9 @@ module.exports = grammar({
       repeat1(';;'),
       seq(
         repeat(';;'),
-        choice($._structure_item, $.toplevel_directive, $.expression_item),
+        choice($._structure_item_ext, $.toplevel_directive, $.expression_item),
         repeat(choice(
-          seq(repeat(';;'), choice($._structure_item, $.toplevel_directive)),
+          seq(repeat(';;'), choice($._structure_item_ext, $.toplevel_directive)),
           seq(repeat1(';;'), $.expression_item)
         )),
         repeat(';;')
@@ -107,13 +115,13 @@ module.exports = grammar({
     ),
 
     expression_item: $ => seq(
-      $._sequence_expression,
+      $._sequence_expression_ext,
       repeat($.item_attribute)
     ),
 
     _signature: $ => choice(
       repeat1(';;'),
-      seq(repeat1(seq(repeat(';;'), $._signature_item)), repeat(';;'))
+      seq(repeat1(seq(repeat(';;'), $._signature_item_ext)), repeat(';;'))
     ),
 
     // Toplevel
@@ -140,7 +148,11 @@ module.exports = grammar({
       $.include_module,
       $.class_definition,
       $.class_type_definition,
-      $.floating_attribute,
+      $.floating_attribute
+    ),
+
+    _structure_item_ext: $ => choice(
+      $._structure_item,
       $._item_extension
     ),
 
@@ -150,13 +162,13 @@ module.exports = grammar({
     ),
 
     let_binding: $ => prec.right(seq(
-      field('pattern', $._binding_pattern),
+      field('pattern', $._binding_pattern_ext),
       optional(seq(
         repeat($._parameter),
         optional($._polymorphic_typed),
-        optional(seq(':>', $._type)),
+        optional(seq(':>', $._type_ext)),
         '=',
-        field('body', $._sequence_expression),
+        field('body', $._sequence_expression_ext),
       )),
       repeat($.item_attribute)
     )),
@@ -167,31 +179,31 @@ module.exports = grammar({
     ),
 
     parameter: $ => choice(
-      field('pattern', $._simple_pattern),
+      field('pattern', $._simple_pattern_ext),
       seq(
         choice('~', '?'),
-        field('pattern', $._simple_value_pattern)
+        field('pattern', alias($._identifier, $.value_pattern))
       ),
       seq(
         $._label,
         token.immediate(':'),
-        field('pattern', $._simple_pattern)
+        field('pattern', $._simple_pattern_ext)
       ),
       seq(
         choice('~', '?'),
         '(',
-        field('pattern', $._simple_value_pattern),
+        field('pattern', alias($._identifier, $.value_pattern)),
         optional($._typed),
-        optional(seq('=', $._sequence_expression)),
+        optional(seq('=', $._sequence_expression_ext)),
         ')'
       ),
       seq(
         $._label,
         token.immediate(':'),
         '(',
-        field('pattern', $._pattern),
+        field('pattern', $._pattern_ext),
         optional($._typed),
-        seq('=', $._sequence_expression),
+        seq('=', $._sequence_expression_ext),
         ')'
       )
     ),
@@ -255,7 +267,7 @@ module.exports = grammar({
     _type_equation: $ => seq(
       choice('=', ':='),
       optional('private'),
-      $._type
+      $._type_ext
     ),
 
     variant_declaration: $ => choice(
@@ -274,14 +286,14 @@ module.exports = grammar({
           ':',
           optional(seq(repeat1($.type_variable), '.')),
           optional(seq($._constructor_argument, '->')),
-          $._simple_type
+          $._simple_type_ext
         ),
         seq('=', $.constructor_path)
       ))
     ),
 
     _constructor_argument: $ => choice(
-      sep1('*', $._simple_type),
+      sep1('*', $._simple_type_ext),
       $.record_declaration
     ),
 
@@ -300,9 +312,9 @@ module.exports = grammar({
 
     type_constraint: $ => seq(
       'constraint',
-      $._type,
+      $._type_ext,
       '=',
-      $._type
+      $._type_ext
     ),
 
     exception_definition: $ => seq(
@@ -321,7 +333,7 @@ module.exports = grammar({
       field('name', choice($._module_name, alias('_', $.module_name))),
       repeat($.module_parameter),
       optional($._module_typed),
-      optional(seq(choice('=', ':='), field('body', $._module_expression))),
+      optional(seq(choice('=', ':='), field('body', $._module_expression_ext))),
       repeat($.item_attribute)
     ),
 
@@ -334,7 +346,7 @@ module.exports = grammar({
       'module', 'type',
       optional($._attribute),
       field('name', $._module_type_name),
-      optional(seq(choice('=', ':='), field('body', $._module_type))),
+      optional(seq(choice('=', ':='), field('body', $._module_type_ext))),
       repeat($.item_attribute)
     ),
 
@@ -342,14 +354,14 @@ module.exports = grammar({
       'open',
       optional('!'),
       optional($._attribute),
-      $._module_expression,
+      $._module_expression_ext,
       repeat($.item_attribute)
     ),
 
     include_module: $ => seq(
       'include',
       optional($._attribute),
-      $._module_expression,
+      $._module_expression_ext,
       repeat($.item_attribute)
     ),
 
@@ -368,7 +380,7 @@ module.exports = grammar({
       field('name', $._class_name),
       repeat($._parameter),
       optional($._class_typed),
-      optional(seq('=', field('body', $._class_expression))),
+      optional(seq('=', field('body', $._class_expression_ext))),
       repeat($.item_attribute)
     )),
 
@@ -386,7 +398,7 @@ module.exports = grammar({
       )),
       field('name', $._class_type_name),
       '=',
-      field('body', $._simple_class_type),
+      field('body', $._simple_class_type_ext),
       repeat($.item_attribute)
     ),
 
@@ -403,7 +415,11 @@ module.exports = grammar({
       $.include_module_type,
       $.class_definition,
       $.class_type_definition,
-      $.floating_attribute,
+      $.floating_attribute
+    ),
+
+    _signature_item_ext: $ => choice(
+      $._signature_item,
       $._item_extension
     ),
 
@@ -418,13 +434,13 @@ module.exports = grammar({
     include_module_type: $ => seq(
       'include',
       optional($._attribute),
-      $._module_type,
+      $._module_type_ext,
       repeat($.item_attribute)
     ),
 
     // Module types
 
-    _module_typed: $ => seq(':', $._module_type),
+    _module_typed: $ => seq(':', $._module_type_ext),
 
     _module_type: $ => choice(
       $.module_type_path,
@@ -432,7 +448,11 @@ module.exports = grammar({
       $.module_type_constraint,
       $.module_type_of,
       $.functor_type,
-      $.parenthesized_module_type,
+      $.parenthesized_module_type
+    ),
+
+    _module_type_ext: $ => choice(
+      $._module_type,
       $._extension
     ),
 
@@ -443,7 +463,7 @@ module.exports = grammar({
     ),
 
     module_type_constraint: $ => prec.right(seq(
-      $._module_type,
+      $._module_type_ext,
       'with',
       sep1('and', choice(
         $.constrain_type,
@@ -471,26 +491,26 @@ module.exports = grammar({
       'module', 'type',
       $.module_type_path,
       choice('=', ':='),
-      $._module_type
+      $._module_type_ext
     )),
 
     module_type_of: $ => seq(
       'module', 'type', 'of',
-      $._module_expression
+      $._module_expression_ext
     ),
 
     functor_type: $ => prec.right(seq(
       choice(
         seq('functor', repeat($.module_parameter)),
-        $._module_type,
+        $._module_type_ext,
         seq('(', ')')
       ),
       '->',
-      $._module_type
+      $._module_type_ext
     )),
 
     parenthesized_module_type: $ => seq(
-      parenthesize($._module_type)
+      parenthesize($._module_type_ext)
     ),
 
     // Module expressions
@@ -498,7 +518,11 @@ module.exports = grammar({
     _simple_module_expression: $ => choice(
       $.typed_module_expression,
       $.parenthesized_module_expression,
-      $.packed_module,
+      $.packed_module
+    ),
+
+    _simple_module_expression_ext: $ => choice(
+      $._simple_module_expression,
       $._extension
     ),
 
@@ -508,6 +532,11 @@ module.exports = grammar({
       $.structure,
       $.functor,
       $.module_application
+    ),
+
+    _module_expression_ext: $ => choice(
+      $._module_expression,
+      $._extension
     ),
 
     structure: $ => seq(
@@ -520,41 +549,45 @@ module.exports = grammar({
       'functor',
       repeat1($.module_parameter),
       '->',
-      field('body', $._module_expression),
+      field('body', $._module_expression_ext),
     )),
 
     module_application: $ => seq(
-      field('functor', $._module_expression),
+      field('functor', $._module_expression_ext),
       choice(
-        field('argument', $._simple_module_expression),
+        field('argument', $._simple_module_expression_ext),
         seq('(', ')')
       )
     ),
 
     typed_module_expression: $ => parenthesize(seq(
-      $._module_expression,
+      $._module_expression_ext,
       $._module_typed
     )),
 
     packed_module: $ => parenthesize(seq(
       'val',
-      $._expression,
+      $._expression_ext,
       optional($._module_typed),
-      optional(seq(':>', $._module_type))
+      optional(seq(':>', $._module_type_ext))
     )),
 
-    parenthesized_module_expression: $ => parenthesize($._module_expression),
+    parenthesized_module_expression: $ => parenthesize($._module_expression_ext),
 
     // Class types
 
-    _class_typed: $ => seq(':', $._class_type),
+    _class_typed: $ => seq(':', $._class_type_ext),
 
     _simple_class_type: $ => choice(
       $.class_type_path,
       $.instantiated_class_type,
       $.class_body_type,
-      $.let_open_class_type,
-      $._extension
+      $.let_open_class_type
+    ),
+
+    _simple_class_type_ext: $ => choice(
+      $._simple_class_type,
+      $._extension,
     ),
 
     _class_type: $ => choice(
@@ -562,18 +595,23 @@ module.exports = grammar({
       $.class_function_type
     ),
 
+    _class_type_ext: $ => choice(
+      $._class_type,
+      $._extension
+    ),
+
     instantiated_class_type: $ => seq(
       '[',
-      sep1(',', $._type),
+      sep1(',', $._type_ext),
       ']',
       $.class_type_path
     ),
 
     class_body_type: $ => seq(
       'object',
-      optional(parenthesize($._type)),
+      optional(parenthesize($._type_ext)),
       repeat(choice(
-        $._class_field_specification,
+        $._class_field_specification_ext,
         $.floating_attribute
       )),
       'end'
@@ -583,13 +621,17 @@ module.exports = grammar({
       $.inheritance_specification,
       $.instance_variable_specification,
       $.method_specification,
-      $.type_parameter_constraint,
+      $.type_parameter_constraint
+    ),
+
+    _class_field_specification_ext: $ => choice(
+      $._class_field_specification,
       $._item_extension
     ),
 
     inheritance_specification: $ => seq(
       'inherit',
-      $._simple_class_type,
+      $._simple_class_type_ext,
       repeat($.item_attribute)
     ),
 
@@ -611,9 +653,9 @@ module.exports = grammar({
 
     type_parameter_constraint: $ => seq(
       'constraint',
-      $._type,
+      $._type_ext,
       '=',
-      $._type,
+      $._type_ext,
       repeat($.item_attribute)
     ),
 
@@ -621,14 +663,14 @@ module.exports = grammar({
       'let',
       $.open_module,
       'in',
-      field('body', $._simple_class_type)
+      field('body', $._simple_class_type_ext)
     )),
 
     class_function_type: $ => prec.right(PREC.seq, seq(
       optional(seq(optional('?'), $._label_name, ':')),
-      $._tuple_type,
+      $._tuple_type_ext,
       '->',
-      $._class_type
+      $._class_type_ext
     )),
 
     // Class expressions
@@ -638,8 +680,7 @@ module.exports = grammar({
       $.instantiated_class,
       $.object_expression,
       $.typed_class_expression,
-      $.parenthesized_class_expression,
-      $._extension
+      $.parenthesized_class_expression
     ),
 
     _class_expression: $ => choice(
@@ -650,16 +691,21 @@ module.exports = grammar({
       $.let_open_class_expression
     ),
 
+    _class_expression_ext: $ => choice(
+      $._class_expression,
+      $._extension
+    ),
+
     instantiated_class: $ => seq(
       '[',
-      sep1(',', $._type),
+      sep1(',', $._type_ext),
       ']',
       $.class_path
     ),
 
     typed_class_expression: $ => seq(
       parenthesize(seq(
-        $._class_expression,
+        $._class_expression_ext,
         $._class_typed
       ))
     ),
@@ -668,7 +714,7 @@ module.exports = grammar({
       'fun',
       repeat1($._parameter),
       '->',
-      field('body', $._class_expression)
+      field('body', $._class_expression_ext)
     )),
 
     class_application: $ => prec.right(PREC.app, seq(
@@ -679,7 +725,7 @@ module.exports = grammar({
     let_class_expression: $ => prec.right(PREC.match, seq(
       $.value_definition,
       'in',
-      field('body', $._class_expression)
+      field('body', $._class_expression_ext)
     )),
 
     _class_field: $ => choice(
@@ -687,14 +733,18 @@ module.exports = grammar({
       $.instance_variable_definition,
       $.method_definition,
       $.type_parameter_constraint,
-      $.class_initializer,
+      $.class_initializer
+    ),
+
+    _class_field_ext: $ => choice(
+      $._class_field,
       $._item_extension
     ),
 
     inheritance_definition: $ => seq(
       'inherit',
       optional('!'),
-      $._class_expression,
+      $._class_expression_ext,
       optional(seq('as', $._value_pattern)),
       repeat($.item_attribute)
     ),
@@ -705,8 +755,8 @@ module.exports = grammar({
       repeat(choice('mutable', 'virtual')),
       field('name', $._instance_variable_name),
       optional($._typed),
-      optional(seq(':>', $._type)),
-      optional(seq('=', field('body', $._sequence_expression))),
+      optional(seq(':>', $._type_ext)),
+      optional(seq('=', field('body', $._sequence_expression_ext))),
       repeat($.item_attribute)
     ),
 
@@ -717,13 +767,13 @@ module.exports = grammar({
       field('name', $._method_name),
       repeat($._parameter),
       optional($._polymorphic_typed),
-      optional(seq('=', field('body', $._sequence_expression))),
+      optional(seq('=', field('body', $._sequence_expression_ext))),
       repeat($.item_attribute)
     ),
 
     class_initializer: $ => seq(
       'initializer',
-      $._sequence_expression,
+      $._sequence_expression_ext,
       repeat($.item_attribute)
     ),
 
@@ -731,24 +781,24 @@ module.exports = grammar({
       'let',
       $.open_module,
       'in',
-      field('body', $._class_expression)
+      field('body', $._class_expression_ext)
     )),
 
     parenthesized_class_expression: $ => seq(
-      parenthesize($._class_expression)
+      parenthesize($._class_expression_ext)
     ),
 
     // Types
 
-    _typed: $ => seq(':', $._type),
+    _typed: $ => seq(':', $._type_ext),
 
-    _simple_typed: $ => seq(':', $._simple_type),
+    _simple_typed: $ => seq(':', $._simple_type_ext),
 
     _polymorphic_typed: $ => seq(':', $._polymorphic_type),
 
     _polymorphic_type: $ => choice(
       $.polymorphic_type,
-      $._type
+      $._type_ext
     ),
 
     polymorphic_type: $ => seq(
@@ -757,7 +807,7 @@ module.exports = grammar({
         alias($._abstract_type, $.abstract_type)
       ),
       '.',
-      $._type
+      $._type_ext
     ),
 
     _abstract_type: $ => seq(
@@ -771,12 +821,15 @@ module.exports = grammar({
       $.type_variable,
       $.type_constructor_path,
       $.constructed_type,
-      $.local_open_type,
       $.polymorphic_variant_type,
       $.package_type,
       $.hash_type,
       $.object_type,
-      $.parenthesized_type,
+      $.parenthesized_type
+    ),
+
+    _simple_type_ext: $ => choice(
+      $._simple_type,
       $._extension
     ),
 
@@ -785,54 +838,54 @@ module.exports = grammar({
       $.tuple_type
     ),
 
+    _tuple_type_ext: $ => choice(
+      $._tuple_type,
+      $._extension
+    ),
+
     _type: $ => choice(
       $._tuple_type,
       $.function_type,
       $.aliased_type,
     ),
 
+    _type_ext: $ => choice(
+      $._type,
+      $._extension
+    ),
+
     function_type: $ => prec.right(PREC.seq, seq(
-      choice($.typed_label, $._type),
+      choice($.typed_label, $._type_ext),
       '->',
-      $._type
+      $._type_ext
     )),
 
     typed_label: $ => prec.left(PREC.seq, seq(
       optional('?'),
       $._label_name,
       ':',
-      $._type
+      $._type_ext
     )),
 
     tuple_type: $ => prec(PREC.prod, seq(
-      $._tuple_type,
+      $._tuple_type_ext,
       '*',
-      $._simple_type
+      $._simple_type_ext
     )),
 
     constructed_type: $ => prec(PREC.app, seq(
       choice(
-        $._simple_type,
-        parenthesize(sep1(',', $._type))
+        $._simple_type_ext,
+        parenthesize(sep1(',', $._type_ext))
       ),
       $.type_constructor_path
     )),
 
     aliased_type: $ => prec(PREC.match, seq(
-      $._type,
+      $._type_ext,
       'as',
       $.type_variable
     )),
-
-    local_open_type: $ => seq(
-      $.extended_module_path,
-      '.',
-      choice(
-        parenthesize($._type),
-        $.package_type,
-        $.polymorphic_variant_type
-      )
-    ),
 
     polymorphic_variant_type: $ => seq(
       choice(
@@ -844,7 +897,7 @@ module.exports = grammar({
     ),
 
     _tag_spec: $ => choice(
-      $._type,
+      $._type_ext,
       $.tag_specification
     ),
 
@@ -853,14 +906,14 @@ module.exports = grammar({
       optional(seq(
         'of',
         optional('&'),
-        sep1('&', $._type)
+        sep1('&', $._type_ext)
       ))
     ),
 
     package_type: $ => parenthesize(seq(
       'module',
       optional($._attribute),
-      $._module_type
+      $._module_type_ext
     )),
 
     object_type: $ => seq(
@@ -869,7 +922,7 @@ module.exports = grammar({
         seq(
           sep1(';', choice(
             $.method_type,
-            $._simple_type
+            $._simple_type_ext
           )),
           optional(seq(';', optional('..')))
         ),
@@ -885,14 +938,14 @@ module.exports = grammar({
 
     hash_type: $ => prec(PREC.hash, seq(
       optional(choice(
-        $._simple_type,
-        parenthesize(sep1(',', $._type))
+        $._simple_type_ext,
+        parenthesize(sep1(',', $._type_ext))
       )),
       '#',
       $.class_type_path
     )),
 
-    parenthesized_type: $ => parenthesize($._type),
+    parenthesized_type: $ => parenthesize($._type_ext),
 
     // Expressions
 
@@ -919,7 +972,11 @@ module.exports = grammar({
       $.method_invocation,
       $.object_expression,
       $.parenthesized_expression,
-      $.ocamlyacc_value,
+      $.ocamlyacc_value
+    ),
+
+    _simple_expression_ext: $ => choice(
+      $._simple_expression,
       $._extension
     ),
 
@@ -946,32 +1003,42 @@ module.exports = grammar({
       $.let_exception_expression
     ),
 
+    _expression_ext: $ => choice(
+      $._expression,
+      $._extension
+    ),
+
     _sequence_expression: $ => choice(
       $._expression,
       $.sequence_expression
     ),
 
-    typed_expression: $ => parenthesize(seq(
+    _sequence_expression_ext: $ => choice(
       $._sequence_expression,
+      $._extension
+    ),
+
+    typed_expression: $ => parenthesize(seq(
+      $._sequence_expression_ext,
       $._typed
     )),
 
     product_expression: $ => prec.left(PREC.prod, seq(
-      field('left', $._expression),
+      field('left', $._expression_ext),
       ',',
-      field('right', $._expression)
+      field('right', $._expression_ext)
     )),
 
     cons_expression: $ => prec.right(PREC.cons, seq(
-      field('left', $._expression),
+      field('left', $._expression_ext),
       '::',
-      field('right', $._expression)
+      field('right', $._expression_ext)
     )),
 
     list_expression: $ => seq(
       '[',
       optional(seq(
-        sep1(';', $._expression),
+        sep1(';', $._expression_ext),
         optional(';')
       )),
       ']'
@@ -980,7 +1047,7 @@ module.exports = grammar({
     array_expression: $ => seq(
       '[|',
       optional(seq(
-        sep1(';', $._expression),
+        sep1(';', $._expression_ext),
         optional(';')
       )),
       '|]'
@@ -988,7 +1055,7 @@ module.exports = grammar({
 
     record_expression: $ => seq(
       '{',
-      optional(seq($._simple_expression, 'with')),
+      optional(seq($._simple_expression_ext, 'with')),
       sep1(';', $.field_expression),
       optional(';'),
       '}'
@@ -997,16 +1064,16 @@ module.exports = grammar({
     field_expression: $ => prec(PREC.seq, seq(
       field('name', $.field_path),
       optional($._typed),
-      optional(seq('=', field('body', $._expression)))
+      optional(seq('=', field('body', $._expression_ext)))
     )),
 
     application_expression: $ => prec.right(PREC.app, seq(
-      field('function', $._simple_expression),
+      field('function', $._simple_expression_ext),
       repeat1(field('argument', $._argument))
     )),
 
     _argument: $ => choice(
-      $._simple_expression,
+      $._simple_expression_ext,
       $.labeled_argument
     ),
 
@@ -1015,7 +1082,7 @@ module.exports = grammar({
       seq(
         $._label,
         token.immediate(':'),
-        $._simple_expression
+        $._simple_expression_ext
       ),
       seq(
         choice('~', '?'),
@@ -1028,18 +1095,18 @@ module.exports = grammar({
 
     prefix_expression: $ => prec(PREC.prefix, seq(
       field('operator', $.prefix_operator),
-      field('right', $._simple_expression)
+      field('right', $._simple_expression_ext)
     )),
 
     sign_expression: $ => prec(PREC.neg, seq(
       field('operator', $.sign_operator),
-      field('right', $._expression)
+      field('right', $._expression_ext)
     )),
 
     hash_expression: $ => prec.left(PREC.hash, seq(
-      field('left', $._simple_expression),
+      field('left', $._simple_expression_ext),
       field('operator', $.hash_operator),
-      field('right', $._simple_expression)
+      field('right', $._simple_expression_ext)
     )),
 
     infix_expression: $ => {
@@ -1088,43 +1155,43 @@ module.exports = grammar({
 
       return choice(...table.map(({operator, precedence, associativity}) =>
         prec[associativity](precedence, seq(
-          field('left', $._expression),
+          field('left', $._expression_ext),
           field('operator', operator),
-          field('right', $._expression)
+          field('right', $._expression_ext)
         ))
       ))
     },
 
     field_get_expression: $ => prec.left(PREC.dot, seq(
-      $._simple_expression,
+      $._simple_expression_ext,
       '.',
       $.field_path
     )),
 
     array_get_expression: $ => prec(PREC.dot, seq(
-      $._simple_expression,
+      $._simple_expression_ext,
       '.',
       optional($.indexing_operator_path),
       '(',
-      $._sequence_expression,
+      $._sequence_expression_ext,
       ')'
     )),
 
     string_get_expression: $ => prec(PREC.dot, seq(
-      $._simple_expression,
+      $._simple_expression_ext,
       '.',
       optional($.indexing_operator_path),
       '[',
-      $._sequence_expression,
+      $._sequence_expression_ext,
       ']'
     )),
 
     bigarray_get_expression: $ => prec(PREC.dot, seq(
-      $._simple_expression,
+      $._simple_expression_ext,
       '.',
       optional($.indexing_operator_path),
       '{',
-      $._sequence_expression,
+      $._sequence_expression_ext,
       '}'
     )),
 
@@ -1137,37 +1204,37 @@ module.exports = grammar({
         $._instance_variable_name
       ),
       '<-',
-      field('body', $._expression)
+      field('body', $._expression_ext)
     )),
 
     if_expression: $ => prec.right(PREC.if, seq(
       'if',
       optional($._attribute),
-      field('condition', $._sequence_expression),
+      field('condition', $._sequence_expression_ext),
       $.then_clause,
       optional($.else_clause)
     )),
 
     then_clause: $ => seq(
       'then',
-      $._expression
+      $._expression_ext
     ),
 
     else_clause: $ => seq(
       'else',
-      $._expression
+      $._expression_ext
     ),
 
     while_expression: $ => seq(
       'while',
       optional($._attribute),
-      field('condition', $._sequence_expression),
+      field('condition', $._sequence_expression_ext),
       $.do_clause
     ),
 
     do_clause: $ => seq(
       'do',
-      optional($._sequence_expression),
+      optional($._sequence_expression_ext),
       'done'
     ),
 
@@ -1176,18 +1243,18 @@ module.exports = grammar({
       optional($._attribute),
       field('name', $._value_pattern),
       '=',
-      field('from', $._sequence_expression),
+      field('from', $._sequence_expression_ext),
       choice('to', 'downto'),
-      field('to', $._sequence_expression),
+      field('to', $._sequence_expression_ext),
       $.do_clause
     ),
 
     sequence_expression: $ => prec.right(PREC.seq, seq(
-      field('left', $._expression),
+      field('left', $._expression_ext),
       ';',
       optional(seq(
         optional($._attribute),
-        field('right', $._sequence_expression)
+        field('right', $._sequence_expression_ext)
       ))
     )),
 
@@ -1196,7 +1263,7 @@ module.exports = grammar({
         seq('match', optional($._attribute)),
         $.match_operator
       ),
-      $._sequence_expression,
+      $._sequence_expression_ext,
       'with',
       $._match_cases
     )),
@@ -1207,15 +1274,15 @@ module.exports = grammar({
     )),
 
     match_case: $ => seq(
-      field('pattern', $._pattern),
+      field('pattern', $._pattern_ext),
       optional($.guard),
       '->',
-      field('body', choice($._sequence_expression, $.refutation_case))
+      field('body', choice($._sequence_expression_ext, $.refutation_case))
     ),
 
     guard: $ => seq(
       'when',
-      $._sequence_expression
+      $._sequence_expression_ext
     ),
 
     refutation_case: $ => '.',
@@ -1232,13 +1299,13 @@ module.exports = grammar({
       repeat1($._parameter),
       optional($._simple_typed),
       '->',
-      field('body', $._sequence_expression)
+      field('body', $._sequence_expression_ext)
     )),
 
     try_expression: $ => prec.right(PREC.match, seq(
       'try',
       optional($._attribute),
-      $._sequence_expression,
+      $._sequence_expression_ext,
       'with',
       $._match_cases
     )),
@@ -1246,47 +1313,47 @@ module.exports = grammar({
     let_expression: $ => prec.right(PREC.match, seq(
       $.value_definition,
       'in',
-      $._sequence_expression
+      $._sequence_expression_ext
     )),
 
     coercion_expression: $ => parenthesize(seq(
-      $._sequence_expression,
+      $._sequence_expression_ext,
       optional($._typed),
       ':>',
-      $._type
+      $._type_ext
     )),
 
     assert_expression: $ => prec.left(PREC.app, seq(
       'assert',
       optional($._attribute),
-      $._simple_expression
+      $._simple_expression_ext
     )),
 
     lazy_expression: $ => prec.left(PREC.app, seq(
       'lazy',
       optional($._attribute),
-      $._simple_expression
+      $._simple_expression_ext
     )),
 
     let_module_expression: $ => prec.right(PREC.match, seq(
       'let',
       $.module_definition,
       'in',
-      field('body', $._sequence_expression)
+      field('body', $._sequence_expression_ext)
     )),
 
     let_open_expression: $ => prec.right(PREC.match, seq(
       'let',
       $.open_module,
       'in',
-      field('body', $._sequence_expression)
+      field('body', $._sequence_expression_ext)
     )),
 
     local_open_expression: $ => seq(
       $.module_path,
       '.',
       choice(
-        parenthesize(optional($._sequence_expression)),
+        parenthesize(optional($._sequence_expression_ext)),
         $.list_expression,
         $.array_expression,
         $.record_expression,
@@ -1298,7 +1365,7 @@ module.exports = grammar({
     package_expression: $ => parenthesize(seq(
       'module',
       optional($._attribute),
-      $._module_expression,
+      $._module_expression_ext,
       optional($._module_typed)
     )),
 
@@ -1306,7 +1373,7 @@ module.exports = grammar({
       'let',
       $.exception_definition,
       'in',
-      field('body', $._sequence_expression)
+      field('body', $._sequence_expression_ext)
     )),
 
     new_expression: $ => seq(
@@ -1324,11 +1391,11 @@ module.exports = grammar({
 
     instance_variable_expression: $ => seq(
       $._instance_variable_name,
-      optional(seq('=', $._expression))
+      optional(seq('=', $._expression_ext))
     ),
 
     method_invocation: $ => prec.right(PREC.hash, seq(
-      $._simple_expression,
+      $._simple_expression_ext,
       '#',
       $._method_name
     )),
@@ -1337,11 +1404,11 @@ module.exports = grammar({
       'object',
       optional($._attribute),
       optional(parenthesize(seq(
-        $._pattern,
+        $._pattern_ext,
         optional($._typed)
       ))),
       repeat(choice(
-        $._class_field,
+        $._class_field_ext,
         $.floating_attribute
       )),
       'end'
@@ -1351,10 +1418,10 @@ module.exports = grammar({
       seq(
         'begin',
         optional($._attribute),
-        $._sequence_expression,
+        $._sequence_expression_ext,
         'end'
       ),
-      parenthesize($._sequence_expression)
+      parenthesize($._sequence_expression_ext)
     ),
 
     ocamlyacc_value: $ => /\$[0-9]+/,
@@ -1373,7 +1440,11 @@ module.exports = grammar({
       $.array_pattern,
       $.local_open_pattern,
       $.package_pattern,
-      $.parenthesized_pattern,
+      $.parenthesized_pattern
+    ),
+
+    _simple_pattern_ext: $ => choice(
+      $._simple_pattern,
       $._extension
     ),
 
@@ -1388,6 +1459,11 @@ module.exports = grammar({
       $.range_pattern,
       $.lazy_pattern,
       $.exception_pattern
+    ),
+
+    _pattern_ext: $ => choice(
+      $._pattern,
+      $._extension
     ),
 
     _binding_pattern: $ => choice(
@@ -1410,67 +1486,71 @@ module.exports = grammar({
       alias($.tuple_binding_pattern, $.tuple_pattern),
       alias($.cons_binding_pattern, $.cons_pattern),
       $.range_pattern,
-      alias($.lazy_binding_pattern, $.lazy_pattern),
+      alias($.lazy_binding_pattern, $.lazy_pattern)
+    ),
+
+    _binding_pattern_ext: $ => choice(
+      $._binding_pattern,
       $._extension
     ),
 
     alias_pattern: $ => prec.left(PREC.match, seq(
-      $._pattern,
+      $._pattern_ext,
       'as',
       $._value_pattern
     )),
 
     alias_binding_pattern: $ => prec.left(PREC.match, seq(
-      $._binding_pattern,
+      $._binding_pattern_ext,
       'as',
       $._value_name
     )),
 
     typed_pattern: $ => seq(
       parenthesize(seq(
-        $._pattern,
+        $._pattern_ext,
         $._typed
       ))
     ),
 
     typed_binding_pattern: $ => seq(
       parenthesize(seq(
-        field('pattern', $._binding_pattern),
+        field('pattern', $._binding_pattern_ext),
         $._typed
       ))
     ),
 
     or_pattern: $ => prec.left(PREC.seq, seq(
-      $._pattern,
+      $._pattern_ext,
       '|',
-      $._pattern
+      $._pattern_ext
     )),
 
     or_binding_pattern: $ => prec.left(PREC.seq, seq(
-      $._binding_pattern,
+      $._binding_pattern_ext,
       '|',
-      $._binding_pattern
+      $._binding_pattern_ext
     )),
 
     constructor_pattern: $ => prec.right(PREC.app, seq(
       $.constructor_path,
       optional(alias($._parenthesized_abstract_type, $.abstract_type)),
-      $._pattern
+      $._pattern_ext
     )),
 
     constructor_binding_pattern: $ => prec.right(PREC.app, seq(
       $.constructor_path,
-      field('pattern', $._binding_pattern)
+      field('pattern', $._binding_pattern_ext)
     )),
 
     tag_pattern: $ => prec.right(PREC.app, seq(
       $.tag,
-      $._pattern
+      $._pattern_ext
     )),
 
     tag_binding_pattern: $ => prec.right(PREC.app, seq(
       $.tag,
-      field('pattern', $._binding_pattern)
+      field('pattern', $._binding_pattern_ext)
     )),
 
     polymorphic_variant_pattern: $ => seq(
@@ -1479,15 +1559,15 @@ module.exports = grammar({
     ),
 
     tuple_pattern: $ => prec.left(PREC.prod, seq(
-      $._pattern,
+      $._pattern_ext,
       ',',
-      $._pattern
+      $._pattern_ext
     )),
 
     tuple_binding_pattern: $ => prec.left(PREC.prod, seq(
-      $._binding_pattern,
+      $._binding_pattern_ext,
       ',',
-      $._binding_pattern
+      $._binding_pattern_ext
     )),
 
     record_pattern: $ => prec.left(seq(
@@ -1501,7 +1581,7 @@ module.exports = grammar({
     field_pattern: $ => seq(
       $.field_path,
       optional($._typed),
-      optional(seq('=', $._pattern))
+      optional(seq('=', $._pattern_ext))
     ),
 
     record_binding_pattern: $ => prec.left(seq(
@@ -1515,13 +1595,13 @@ module.exports = grammar({
     field_binding_pattern: $ => seq(
       $.field_path,
       optional($._typed),
-      optional(seq('=', field('pattern', $._binding_pattern)))
+      optional(seq('=', field('pattern', $._binding_pattern_ext)))
     ),
 
     list_pattern: $ => prec.left(seq(
       '[',
       optional(seq(
-        sep1(';', $._pattern),
+        sep1(';', $._pattern_ext),
         optional(';')
       )),
       ']'
@@ -1530,28 +1610,28 @@ module.exports = grammar({
     list_binding_pattern: $ => prec.left(seq(
       '[',
       optional(seq(
-        sep1(';', $._binding_pattern),
+        sep1(';', $._binding_pattern_ext),
         optional(';')
       )),
       ']'
     )),
 
     cons_pattern: $ => prec.right(PREC.cons, seq(
-      $._pattern,
+      $._pattern_ext,
       '::',
-      $._pattern
+      $._pattern_ext
     )),
 
     cons_binding_pattern: $ => prec.right(PREC.cons, seq(
-      $._binding_pattern,
+      $._binding_pattern_ext,
       '::',
-      $._binding_pattern
+      $._binding_pattern_ext
     )),
 
     array_pattern: $ => prec.left(seq(
       '[|',
       optional(seq(
-        sep1(';', $._pattern),
+        sep1(';', $._pattern_ext),
         optional(';')
       )),
       '|]'
@@ -1560,7 +1640,7 @@ module.exports = grammar({
     array_binding_pattern: $ => prec.left(seq(
       '[|',
       optional(seq(
-        sep1(';', $._binding_pattern),
+        sep1(';', $._binding_pattern_ext),
         optional(';')
       )),
       '|]'
@@ -1575,20 +1655,20 @@ module.exports = grammar({
     lazy_pattern: $ => prec(PREC.hash, seq(
       'lazy',
       optional($._attribute),
-      $._pattern
+      $._pattern_ext
     )),
 
     lazy_binding_pattern: $ => prec(PREC.hash, seq(
       'lazy',
       optional($._attribute),
-      $._binding_pattern
+      $._binding_pattern_ext
     )),
 
     local_open_pattern: $ => seq(
       $.module_path,
       '.',
       choice(
-        parenthesize(optional($._pattern)),
+        parenthesize(optional($._pattern_ext)),
         $.list_pattern,
         $.array_pattern,
         $.record_pattern
@@ -1599,7 +1679,7 @@ module.exports = grammar({
       $.module_path,
       '.',
       choice(
-        parenthesize(optional($._binding_pattern)),
+        parenthesize(optional($._binding_pattern_ext)),
         $.list_binding_pattern,
         $.array_binding_pattern,
         $.record_binding_pattern
@@ -1613,14 +1693,14 @@ module.exports = grammar({
       optional($._module_typed)
     )),
 
-    parenthesized_pattern: $ => parenthesize($._pattern),
+    parenthesized_pattern: $ => parenthesize($._pattern_ext),
 
-    parenthesized_binding_pattern: $ => parenthesize($._binding_pattern),
+    parenthesized_binding_pattern: $ => parenthesize($._binding_pattern_ext),
 
     exception_pattern: $ => seq(
       'exception',
       optional($._attribute),
-      $._pattern
+      $._pattern_ext
     ),
 
     // Attributes and extensions
@@ -1648,10 +1728,10 @@ module.exports = grammar({
 
     attribute_payload: $ => choice(
       $._structure,
-      seq(':', optional(choice($._type, $._signature))),
+      seq(':', optional(choice($._type_ext, $._signature))),
       seq(
         '?',
-        $._pattern,
+        $._pattern_ext,
         optional($.guard)
       )
     ),
@@ -1869,10 +1949,8 @@ module.exports = grammar({
       $.parenthesized_operator
     ),
 
-    _simple_value_pattern: $ => alias($._identifier, $.value_pattern),
-
     _value_pattern: $ => choice(
-      $._simple_value_pattern,
+      alias($._identifier, $.value_pattern),
       $.parenthesized_operator
     ),
 
@@ -1913,7 +1991,7 @@ module.exports = grammar({
 
     constructor_path: $ => path($.module_path, $._constructor_name),
 
-    type_constructor_path: $ => path($.extended_module_path, $._type_constructor),
+    type_constructor_path: $ => prec(1, path($.extended_module_path, $._type_constructor)),
 
     class_path: $ => path($.module_path, $._class_name),
 
@@ -1934,7 +2012,7 @@ module.exports = grammar({
       parenthesize(alias('::', $.constructor_name))
     ),
 
-    _identifier: $ => /(\\#)?[a-z_][a-zA-Z0-9_']*/,
+    _identifier: $ => /[a-z_][a-zA-Z0-9_']*/,
     _capitalized_identifier: $ => /[A-Z][a-zA-Z0-9_']*/,
 
     _label: $ => seq(choice('~', '?'), $._label_name),

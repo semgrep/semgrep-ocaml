@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-ocaml/LICENSE
 Git repo name: tree-sitter-ocaml
-Latest commit in repo: 4abfdc1c7af2c6c77a370aee974627be1c285b3b
+Latest commit in repo: 4a885a615634dd447ae6b9d8f2cee4a3ea495087
 Last change in file:
   commit cc26b1ef111100f26a137bcbcd39fd4e35be9a59
   Author: Pieter Goetschalckx <pieter@gtschlckx.be>
@@ -10,35 +10,34 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-ocaml/ocaml/grammar.js
 Git repo name: tree-sitter-ocaml
-Latest commit in repo: 4abfdc1c7af2c6c77a370aee974627be1c285b3b
+Latest commit in repo: 4a885a615634dd447ae6b9d8f2cee4a3ea495087
 Last change in file:
-  commit e260d33a8bd001948913b756f905c587014e0853
-  Author: Pieter Goetschalckx <pieter@gtschlckx.be>
-  Date:   Mon Jul 3 17:45:06 2023 +0100
+  commit f4214a1606ff9a294e9f5ac0db79c23471db16d4
+  Author: Pieter Goetschalckx <github@gtschlckx.be>
+  Date:   Tue May 30 22:43:34 2023 +0200
   
-      Support local open in types
+      Use named nodes for infix operator subtypes (#77)
+      
+      * Avoid creating leaf nodes for some operators
+      
+      * Rename and_operator to let_and_operator
+      
+      * Make infix_operator a supertype
 ---
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: a2ac258196d72180015e3020f8bc94756310aebe
+Latest commit in repo: 0d41c9203a9aebd1d176e94636748d081205d257
 Last change in file:
-  commit dd8c1c12669989ea46cd0de76df63d551b78cd8f
+  commit 0d41c9203a9aebd1d176e94636748d081205d257
   Author: pad <pad@r2c.dev>
-  Date:   Wed Jan 24 16:44:34 2024 +0100
+  Date:   Thu Jan 25 12:10:25 2024 +0100
   
-      OCaml: allow to parse signatures at the toplevel too
+      Update to less recent tree-sitter-ocaml
       
-      This will allow to parse .mli using tree-sitter-ocaml. Right now
-      the .mli generate parse errors with tree-sitter-ocaml, so we default
-      back to menhir to parse those .mli (which has some special
-      code to use different grammar entry points depending whether
-      we parse a .mli or .ml), but menhir does not handle some
-      of the latest features of OCaml, so many .mli in the semgrep
-      codebase actually don't parse (especially the one using
-      capabilities which are object types).
+      The last time we updated Parse_ocaml_tree_sitter.ml
+      was with a tree-sitter-ocaml of 2021 ... so there are lots
+      of changes so let's update by steps, like brandon did for C++.
       
       test plan:
-      unit test included
-      cd lang
       ./test-lang ocaml
 ---
