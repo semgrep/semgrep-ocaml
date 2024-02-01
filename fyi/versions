@@ -2,11 +2,11 @@ File: semgrep-grammars/src/tree-sitter-ocaml/LICENSE
 Git repo name: tree-sitter-ocaml
 Latest commit in repo: 4a885a615634dd447ae6b9d8f2cee4a3ea495087
 Last change in file:
-  commit cc26b1ef111100f26a137bcbcd39fd4e35be9a59
+  commit 0cb17f823bd118ca21bc2ebb178ff6082bd32c08
   Author: Pieter Goetschalckx <pieter@gtschlckx.be>
-  Date:   Sun Jun 19 21:41:43 2022 +0200
+  Date:   Mon Sep 14 23:58:47 2020 +0200
   
-      Cache examples in Github workflow
+      Add license. Closes #44.
 ---
 File: semgrep-grammars/src/tree-sitter-ocaml/ocaml/grammar.js
 Git repo name: tree-sitter-ocaml
@@ -26,7 +26,7 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 0d41c9203a9aebd1d176e94636748d081205d257
+Latest commit in repo: c9a8bca714137c43f8aede5ed2215193d53defc9
 Last change in file:
   commit 0d41c9203a9aebd1d176e94636748d081205d257
   Author: pad <pad@r2c.dev>
