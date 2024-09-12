@@ -2506,3 +2506,11 @@ type attribute_ (* inlined *) = (
   * attribute_payload option
   * Token.t (* "]" *)
 )
+
+type extra = 
+    Comment of Loc.t * comment
+  | Line_number_directive of Loc.t * line_number_directive
+  | Attribute_ of Loc.t * attribute_
+
+
+type extras = extra list

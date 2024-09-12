@@ -4218,7 +4218,44 @@ let map_compilation_unit (env : env) (x : CST.compilation_unit) =
     )
   )
 
+let map_line_number_directive (env : env) (tok : CST.line_number_directive) =
+  (* line_number_directive *) token env tok
+
+let map_comment (env : env) (tok : CST.comment) =
+  (* comment *) token env tok
+
+let map_attribute_ (env : env) ((v1, v2, v3, v4) : CST.attribute_) =
+  let v1 = map_pat_6c51254 env v1 in
+  let v2 = map_attribute_id env v2 in
+  let v3 =
+    (match v3 with
+    | Some x -> R.Option (Some (
+        map_attribute_payload env x
+      ))
+    | None -> R.Option None)
+  in
+  let v4 = (* "]" *) token env v4 in
+  R.Tuple [v1; v2; v3; v4]
+
 let dump_tree root =
   map_compilation_unit () root
-  |> Tree_sitter_run.Raw_tree.to_string
-  |> print_string
+  |> Tree_sitter_run.Raw_tree.to_channel stdout
+
+let map_extra (env : env) (x : CST.extra) =
+  match x with
+  | Comment (_loc, x) -> ("comment", "comment", map_comment env x)
+  | Line_number_directive (_loc, x) -> ("line_number_directive", "line_number_directive", map_line_number_directive env x)
+  | Attribute_ (_loc, x) -> ("attribute_", "attribute_", map_attribute_ env x)
+
+let dump_extras (extras : CST.extras) =
+  List.iter (fun extra ->
+    let ts_rule_name, ocaml_type_name, raw_tree = map_extra () extra in
+    let details =
+      if ocaml_type_name <> ts_rule_name then
+        Printf.sprintf " (OCaml type '%s')" ocaml_type_name
+      else
+        ""
+    in
+    Printf.printf "%s%s:\n" ts_rule_name details;
+    Tree_sitter_run.Raw_tree.to_channel stdout raw_tree
+  ) extras

@@ -58,8 +58,10 @@ let children_regexps : (string * Run.exp option) list = [
   "pat_dece469", None;
   "pat_714c625", None;
   "and_operator", None;
+  "comment", None;
   "pat_d43393f", None;
   "ocamlyacc_value", None;
+  "pat_6c51254", None;
   "tok_choice_plus_rep1_pat_2ed1ddf", None;
   "capitalized_identifier", None;
   "pat_21333c0", None;
@@ -90,6 +92,7 @@ let children_regexps : (string * Run.exp option) list = [
   "mult_operator", None;
   "pat_3bf11d1", None;
   "pat_86b875b", None;
+  "line_number_directive", None;
   "pat_833344d", None;
   "tok_choice_pat_4349e4b", None;
   "imm_tok_pat_6c51254", None;
@@ -3739,6 +3742,17 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "signature");
     |];
   );
+  "attribute_",
+  Some (
+    Seq [
+      Token (Name "pat_6c51254");
+      Token (Name "attribute_id");
+      Opt (
+        Token (Name "attribute_payload");
+      );
+      Token (Literal "]");
+    ];
+  );
 ]
 
 let trans_concat_operator ((kind, body) : mt) : CST.concat_operator =
@@ -3837,6 +3851,10 @@ let trans_and_operator ((kind, body) : mt) : CST.and_operator =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_comment ((kind, body) : mt) : CST.comment =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_pat_d43393f ((kind, body) : mt) : CST.pat_d43393f =
   match body with
@@ -3848,6 +3866,10 @@ let trans_ocamlyacc_value ((kind, body) : mt) : CST.ocamlyacc_value =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_pat_6c51254 ((kind, body) : mt) : CST.pat_6c51254 =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_tok_choice_plus_rep1_pat_2ed1ddf ((kind, body) : mt) : CST.tok_choice_plus_rep1_pat_2ed1ddf =
   match body with
@@ -3964,6 +3986,10 @@ let trans_pat_86b875b ((kind, body) : mt) : CST.pat_86b875b =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_line_number_directive ((kind, body) : mt) : CST.line_number_directive =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_pat_833344d ((kind, body) : mt) : CST.pat_833344d =
   match body with
@@ -11915,17 +11941,77 @@ let trans_compilation_unit ((kind, body) : mt) : CST.compilation_unit =
       )
   | Leaf _ -> assert false
 
+let trans_attribute_ ((kind, body) : mt) : CST.attribute_ =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3] ->
+          (
+            trans_pat_6c51254 (Run.matcher_token v0),
+            trans_attribute_id (Run.matcher_token v1),
+            Run.opt
+              (fun v -> trans_attribute_payload (Run.matcher_token v))
+              v2
+            ,
+            Run.trans_token (Run.matcher_token v3)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
 
 
+
+(*
+   Costly operation that translates a whole tree or subtree.
+
+   The first pass translates it into a generic tree structure suitable
+   to guess which node corresponds to each grammar rule.
+   The second pass is a translation into a typed tree where each grammar
+   node has its own type.
+
+   This function is called:
+   - once on the root of the program after removing extras
+     (comments and other nodes that occur anywhere independently from
+     the grammar);
+   - once of each extra node, resulting in its own independent tree of type
+     'extra'.
+*)
+let translate_tree src node trans_x =
+  let matched_tree = Run.match_tree children_regexps src node in
+  Option.map trans_x matched_tree
+
+
+let translate_extra src (node : Tree_sitter_output_t.node) : CST.extra option =
+  match node.type_ with
+  | "comment" ->
+      (match translate_tree src node trans_comment with
+      | None -> None
+      | Some x -> Some (Comment (Run.get_loc node, x)))
+  | "line_number_directive" ->
+      (match translate_tree src node trans_line_number_directive with
+      | None -> None
+      | Some x -> Some (Line_number_directive (Run.get_loc node, x)))
+  | "attribute_" ->
+      (match translate_tree src node trans_attribute_ with
+      | None -> None
+      | Some x -> Some (Attribute_ (Run.get_loc node, x)))
+  | _ -> None
+
+let translate_root src root_node =
+  translate_tree src root_node trans_compilation_unit
 
 let parse_input_tree input_tree =
   let orig_root_node = Tree_sitter_parsing.root input_tree in
   let src = Tree_sitter_parsing.src input_tree in
   let errors = Run.extract_errors src orig_root_node in
-  let root_node = Run.remove_extras ~extras orig_root_node in
-  let matched_tree = Run.match_tree children_regexps src root_node in
-  let opt_program = Option.map trans_compilation_unit matched_tree in
-  Parsing_result.create src opt_program errors
+  let opt_program, extras =
+     Run.translate
+       ~extras
+       ~translate_root:(translate_root src)
+       ~translate_extra:(translate_extra src)
+       orig_root_node
+  in
+  Parsing_result.create src opt_program extras errors
 
 let string ?src_file contents =
   let input_tree = parse_source_string ?src_file contents in
