@@ -4243,9 +4243,9 @@ let dump_tree root =
 
 let map_extra (env : env) (x : CST.extra) =
   match x with
-  | Comment (_loc, x) -> ("comment", "comment", map_comment env x)
-  | Line_number_directive (_loc, x) -> ("line_number_directive", "line_number_directive", map_line_number_directive env x)
-  | Attribute_ (_loc, x) -> ("attribute_", "attribute_", map_attribute_ env x)
+  | `Comment (_loc, x) -> ("comment", "comment", map_comment env x)
+  | `Line_number_directive (_loc, x) -> ("line_number_directive", "line_number_directive", map_line_number_directive env x)
+  | `Attribute_ (_loc, x) -> ("attribute_", "attribute_", map_attribute_ env x)
 
 let dump_extras (extras : CST.extras) =
   List.iter (fun extra ->
