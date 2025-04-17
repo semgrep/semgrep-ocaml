@@ -2,31 +2,37 @@ File: semgrep-grammars/src/tree-sitter-ocaml/LICENSE
 Git repo name: tree-sitter-ocaml
 Latest commit in repo: 4a885a615634dd447ae6b9d8f2cee4a3ea495087
 Last change in file:
-  commit 0cb17f823bd118ca21bc2ebb178ff6082bd32c08
-  Author: Pieter Goetschalckx <pieter@gtschlckx.be>
-  Date:   Mon Sep 14 23:58:47 2020 +0200
+  commit 4a885a615634dd447ae6b9d8f2cee4a3ea495087
+  Author: Amaan Qureshi <amaanq12@gmail.com>
+  Date:   Sat Jul 8 09:30:34 2023 -0400
   
-      Add license. Closes #44.
+      Rewrite the external scanner in C (#78)
+      
+      * feat: rewrite the scanner in C
+      
+      * fix: advance null characters if it isn't EOF
+      
+      * fix: infinite loop caused by not checking eof in while loop
 ---
 File: semgrep-grammars/src/tree-sitter-ocaml/ocaml/grammar.js
 Git repo name: tree-sitter-ocaml
 Latest commit in repo: 4a885a615634dd447ae6b9d8f2cee4a3ea495087
 Last change in file:
-  commit f4214a1606ff9a294e9f5ac0db79c23471db16d4
-  Author: Pieter Goetschalckx <github@gtschlckx.be>
-  Date:   Tue May 30 22:43:34 2023 +0200
+  commit 4a885a615634dd447ae6b9d8f2cee4a3ea495087
+  Author: Amaan Qureshi <amaanq12@gmail.com>
+  Date:   Sat Jul 8 09:30:34 2023 -0400
   
-      Use named nodes for infix operator subtypes (#77)
+      Rewrite the external scanner in C (#78)
       
-      * Avoid creating leaf nodes for some operators
+      * feat: rewrite the scanner in C
       
-      * Rename and_operator to let_and_operator
+      * fix: advance null characters if it isn't EOF
       
-      * Make infix_operator a supertype
+      * fix: infinite loop caused by not checking eof in while loop
 ---
 File: semgrep-grammars/src/semgrep-ocaml/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 62c59803ce966ac00210b5ed8aa163a926f7eaad
+Latest commit in repo: dea26c1d0d5b007958b27d072c544f642af0af43
 Last change in file:
   commit 0d41c9203a9aebd1d176e94636748d081205d257
   Author: pad <pad@r2c.dev>
